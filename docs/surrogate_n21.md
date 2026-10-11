@@ -41,15 +41,15 @@ Varied when generating the training spectra but not exposed as conditions. The s
 | Parameter | Min | Max | Meaning |
 | --- | --- | --- | --- |
 | `kappa_red` | 1.0 | 30.0 | grey opacity of the red component, $\mathrm{cm}^{-2}$ $\mathrm{g}^{-1}$ |
-| `kappa_blue` | 0.01 | 1.0 | grey opacity of the blue component, $\mathrm{cm}^{-2$}$ $\mathrm{g}^{-1}$ |
+| `kappa_blue` | 0.01 | 1.0 | grey opacity of the blue component, $\mathrm{cm}^{-2}$ $\mathrm{g}^{-1}$ |
 | `mtov` | 2.0 | ≤ 2.5 | maximum non-rotating neutron star mass, solar masses; upper limit depends on the binary by the prompt-collapse consistency selection |
 | `epsilon` | 0.1 | 0.5 | fraction of the disk mass ejected |
 | `alpha` | 0.1 | 1.0 | enhancement of the blue ejecta by neutron star surface winds |
 | `cos_theta_open` | 0.5 | 0.866 | Cosine of lanthanide-rich half-opening angle |
 | `cos_theta_cocoon` | 0.866 | 1.0 | Cosine of shocked-cocoon opening angle |
-| `Tf1` | 1000 | 4000 | temperature floor, component 1, K |
-| `Tf2` | 1000 | 4000 | temperature floor, component 2, K |
-| `Tf3` | 1000 | 4000 | temperature floor, component 3, K |
+| `Tf1` | 1000 | 4000 | temperature floor of component 1, K |
+| `Tf2` | 1000 | 4000 | temperature floor of component 2, K |
+| `Tf3` | 1000 | 4000 | temperature floor of component 3, K |
 
 ## Output
 
