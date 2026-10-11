@@ -1,0 +1,71 @@
+{
+  "model_name": "N21",
+  "model_type": "glasflow.RealNVP",
+  "model_config": {
+    "n_inputs": 20,
+    "n_conditional_inputs": 6,
+    "n_transforms": 3,
+    "n_neurons": 32,
+    "batch_norm_between_transforms": true
+  },
+  "prediction_metadata": {
+    "condition_names": [
+      "time_rest",
+      "m1",
+      "m2",
+      "lambda1",
+      "lambda2",
+      "cos_theta_obs"
+    ],
+    "condition_min": [
+      0.10000015795230865,
+      1.1003968715667725,
+      1.100000262260437,
+      53.29825210571289,
+      55.87843322753906,
+      5.340299580325336e-08
+    ],
+    "condition_max": [
+      10.999985694885254,
+      1.7999961376190186,
+      1.7980103492736816,
+      2998.5751953125,
+      2999.995849609375,
+      0.9999998807907104
+    ],
+    "wavelengths": [
+      2800.0,
+      3141.949462890625,
+      3525.659423828125,
+      3956.229736328125,
+      4439.38330078125,
+      4981.5419921875,
+      5589.912109375,
+      6272.57861328125,
+      7038.6162109375,
+      7898.20556640625,
+      8862.7724609375,
+      9945.13671875,
+      11159.6845703125,
+      12522.55859375,
+      14051.873046875,
+      15767.955078125,
+      17693.61328125,
+      19854.443359375,
+      22279.162109375,
+      25000.0
+    ],
+    "scale_factor": 100.0
+  },
+  "physical_convention": {
+    "time_unit": "day",
+    "wavelength_unit": "Angstrom",
+    "spectra_quantity": "F_lambda",
+    "spectra_unit": "erg s^-1 cm^-2 Angstrom^-1",
+    "distance_normalisation": "10 pc",
+    "frame": "rest"
+  },
+  "source_files": {
+    "train_h5": "training_data/train_dataset_1m_logt-01-11_w20_rk24.h5"
+  }
+}

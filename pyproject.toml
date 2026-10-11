@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "genova"
+version = "0.1.0"
+description = "A research package for probabilistic kilonova surrogate modelling and validation."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Xiaofei Dong" }
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "sncosmo",
+    "torch",
+    "glasflow",
+]
+
+[project.scripts]
+genova = "genova.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff>=0.16",
+    "pre-commit",
+]
+examples = [
+    "matplotlib",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"genova.models" = [
+    "reference_surrogates/*.pt",
+    "reference_surrogates/*.json",
+    "reference_surrogates/*.npz",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+]
+ignore = [
+    "E501",
+]

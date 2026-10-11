@@ -1,0 +1,68 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Editable installs / env files
+.env
+.venv/
+venv/
+env/
+
+# Test cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS/editor files
+.DS_Store
+*~
+
+# Local development scripts
+/scripts/
+
+# Local training data, training runs, and scratch model copies.
+/data/
+/models/
+/results/
+/figures/
+/logs/
+/condor_logs/
+/submits/
+
+# Large data products
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.fits
+
+# Generated run outputs
+outputs/
+
+# --- Tracked runtime assets ------------------------------------------------
+# These are required to run the documented examples after a clone or install,
+# so they override the blanket rules above.
+
+# Reference surrogate bundle
+!src/genova/models/reference_surrogates/
+!src/genova/models/reference_surrogates/*.npz
+
+# Example input data
+!examples/data/
+!examples/data/**
+
+# Example output directory: keep the folder, ignore what examples write into it
+!examples/outputs/
+examples/outputs/*
+!examples/outputs/.gitkeep
