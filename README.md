@@ -185,9 +185,14 @@ For command-line predictions, outputs are saved as compressed NPZ files.
 
 A reference N21 surrogate is bundled with Genova. It assumes `m1 >= m2` and `lambda1 <= lambda2`.
 
-### Reference surrogate
-
 The reference `N21` surrogate is trained on kilonova spectra generated using the corresponding implementation in [Redback](https://redback.readthedocs.io/en/latest/api/redback.transient_models.kilonova_models.nicholl_bns_rk24.html), which is adapted from the forward model of [Nicholl et al. (2021)](https://doi.org/10.1093/mnras/stab1523)
 
 
 Further details on its training domain and supported parameter space are given in `docs/surrogate_n21.md`.
+
+## Citation
+
+If you use Genova in your research, please cite:
+
+Dong et al. (2026),  
+[arXiv:2608.20262](https://arxiv.org/abs/2608.20262)
