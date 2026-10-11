@@ -31,7 +31,7 @@ Relations and ranges represented in the final training data. The surrogate carri
 | --- | --- |
 | Component ordering | `m1 >= m2`, `lambda1 <= lambda2`, `C1 >= C2` |
 | Mass ratio `q = m2/m1` | 0.611–1.0 |
-| Compactness `C = GM/(Rc²)` | 0.121–0.230, both components |
+| Compactness | 0.121–0.230, both components |
 | Radius | 8.5–15.0 km, both components |
 
 ## Nuisance parameters
@@ -40,19 +40,21 @@ Varied when generating the training spectra but not exposed as conditions. The s
 
 | Parameter | Min | Max | Meaning |
 | --- | --- | --- | --- |
-| `kappa_red` | 1.0 | 30.0 | grey opacity of the red component, $\mathrm{cm}^{-2}\,\mathrm{g}^{-1}$ |
-| `kappa_blue` | 0.01 | 1.0 | grey opacity of the blue component, $\mathrm{cm}^{-2}\,\mathrm{g}^{-1}$ |
+| `kappa_red` | 1.0 | 30.0 | grey opacity of the red component, $\mathrm{cm}^{-2}$ $\mathrm{g}^{-1}$ |
+| `kappa_blue` | 0.01 | 1.0 | grey opacity of the blue component, $\mathrm{cm}^{-2$}$ $\mathrm{g}^{-1}$ |
 | `mtov` | 2.0 | ≤ 2.5 | maximum non-rotating neutron star mass, solar masses; upper limit depends on the binary by the prompt-collapse consistency selection |
 | `epsilon` | 0.1 | 0.5 | fraction of the disk mass ejected |
 | `alpha` | 0.1 | 1.0 | enhancement of the blue ejecta by neutron star surface winds |
-| `cos_theta_open` | 0.5 | 0.866 | lanthanide-rich half-opening angle, θ_open = 30°–60° |
-| `cos_theta_cocoon` | 0.866 | 1.0 | shocked-cocoon opening angle, θ_cocoon = 0°–30° (so θ_cocoon ≤ θ_open) |
+| `cos_theta_open` | 0.5 | 0.866 | Cosine of lanthanide-rich half-opening angle |
+| `cos_theta_cocoon` | 0.866 | 1.0 | Cosine of shocked-cocoon opening angle |
 | `Tf1` | 1000 | 4000 | temperature floor, component 1, K |
 | `Tf2` | 1000 | 4000 | temperature floor, component 2, K |
 | `Tf3` | 1000 | 4000 | temperature floor, component 3, K |
 
 ## Output
 
-Rest-frame $F_\lambda$ in $\mathrm{erg}\,\mathrm{s}^{-1}\,\mathrm{cm}^{-2}\,\mbox{\AA}^{-1}$, normalised to 10 pc, on 20 log-spaced wavelength bins from 2800 $\mbox{\AA}$ to 25000 $\mbox{\AA}$.
+The direct output contains 20 wavelength bins over 2800–25000 Å.
+Fluxes are rest-frame $F_\lambda$ at 10 pc, with units of
+`erg s^-1 cm^-2 Å^-1`.
 
 `predict_spectra` returns an array of shape `(n_cases, n_samples, n_times, 20)`.
