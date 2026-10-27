@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "genova"
 version = "0.1.0"
-description = "A research package for probabilistic kilonova surrogate modelling and validation."
+description = "A surrogate model for probabilistic kilonova spectra and light-curve prediction."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
