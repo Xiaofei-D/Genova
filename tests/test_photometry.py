@@ -2,9 +2,11 @@ import numpy as np
 import sncosmo
 from sncosmo.bandpasses import get_bandpass
 
-from genova.constants import HC_ERG_AA
+from genova.constants import HC_ERG_AA, TIME_SPLINE_DEGREE
 from genova.photometry import register_bandpass
 from genova.photometry.backends.sncosmo_backend import (
+    _ab_magnitudes_for_band,
+    _clean_spectra,
     ab_magnitudes_from_spectral_timeseries,
 )
 from genova.photometry.frames import rest_to_observer_frame
@@ -450,3 +452,53 @@ def test_predict_ensemble_lightcurve() -> None:
     # (n_cases, n_samples, n_times, n_bands)
     assert magnitude_samples.shape == (2, 2, 3, 1)
     np.testing.assert_array_equal(magnitude_samples, magnitudes_common)
+
+
+# --------------------
+# Exact zero flux
+# --------------------
+
+
+def general_path_magnitudes(spectra_time, wave, spectra, bands):
+    """Magnitudes from the backend's cleaning, time spline and integration steps."""
+    source = sncosmo.TimeSeriesSource(
+        phase=spectra_time,
+        wave=wave,
+        flux=_clean_spectra(spectra),
+        time_spline_degree=TIME_SPLINE_DEGREE,
+    )
+    return np.stack(
+        [_ab_magnitudes_for_band(source, band, spectra_time) for band in bands], axis=-1
+    )
+
+
+def test_all_zero_time_row_gives_infinite_magnitudes() -> None:
+    spectra_time, wave, spectra = make_spectral_timeseries()
+    spectra[1] = 0.0
+    bands = ("ps1::g", "2massj")
+
+    magnitudes = ab_magnitudes_from_spectral_timeseries(
+        spectra_time=spectra_time, wave=wave, spectra=spectra, bands=bands
+    )
+
+    assert np.all(np.isposinf(magnitudes[1]))
+    # Other rows are unchanged; the zero row stays in the time spline as before.
+    expected = general_path_magnitudes(spectra_time, wave, spectra, bands)
+    np.testing.assert_array_equal(magnitudes[[0, 2, 3]], expected[[0, 2, 3]])
+
+
+def test_near_zero_spectra_keep_finite_magnitudes() -> None:
+    spectra_time, wave, spectra = make_spectral_timeseries()
+    spectra[1] = 1.0e-300
+    spectra[2] = 0.0
+    spectra[2, 400] = 1.0e-20  # one non-zero wavelength
+    bands = ("ps1::g", "2massj")
+
+    magnitudes = ab_magnitudes_from_spectral_timeseries(
+        spectra_time=spectra_time, wave=wave, spectra=spectra, bands=bands
+    )
+
+    np.testing.assert_array_equal(
+        magnitudes, general_path_magnitudes(spectra_time, wave, spectra, bands)
+    )
+    assert np.all(np.isfinite(magnitudes))

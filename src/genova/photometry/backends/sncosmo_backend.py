@@ -93,7 +93,8 @@ def ab_magnitudes_from_spectral_timeseries(
     Returns
     -------
     np.ndarray
-        AB magnitudes with shape (..., n_times, n_bands).
+        AB magnitudes with shape (..., n_times, n_bands). A time whose spectrum is
+        exactly zero at every wavelength has zero flux: its magnitudes are +inf.
     """
     time_arr = np.asarray(spectra_time, dtype=float)
     wave_arr = np.asarray(wave, dtype=float)
@@ -108,6 +109,9 @@ def ab_magnitudes_from_spectral_timeseries(
 
     if not band_names:
         raise ValueError("bands must contain at least one bandpass name")
+
+    # Ignore the zero flux spectra
+    zero_rows = np.all(spectra_arr == 0.0, axis=-1).reshape(-1, time_arr.size)
 
     # sncosmo requires at least two time points for linear interpolation.
     # Duplicate a spectrum only to perform the interpolation.
@@ -146,5 +150,8 @@ def ab_magnitudes_from_spectral_timeseries(
                 band_name,
                 time_arr,
             )
+
+    # Zero flux is infinitely faint.
+    flat_magnitudes[zero_rows] = np.inf
 
     return flat_magnitudes.reshape(*leading_shape, time_arr.size, len(band_names))
