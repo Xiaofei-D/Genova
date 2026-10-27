@@ -4,8 +4,8 @@
   "model_config": {
     "n_inputs": 20,
     "n_conditional_inputs": 6,
-    "n_transforms": 3,
-    "n_neurons": 32,
+    "n_transforms": 6,
+    "n_neurons": 64,
     "batch_norm_between_transforms": true
   },
   "prediction_metadata": {
@@ -55,7 +55,9 @@
       22279.162109375,
       25000.0
     ],
-    "scale_factor": 100.0
+    "asinh_scale": 1e-07,
+    "x_min": 0.09983407706022263,
+    "x_max": 14.834762573242188
   },
   "physical_convention": {
     "time_unit": "day",
@@ -64,8 +66,5 @@
     "spectra_unit": "erg s^-1 cm^-2 Angstrom^-1",
     "distance_normalisation": "10 pc",
     "frame": "rest"
-  },
-  "source_files": {
-    "train_h5": "training_data/train_dataset_1m_logt-01-11_w20_rk24.h5"
   }
 }

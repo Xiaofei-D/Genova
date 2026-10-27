@@ -29,7 +29,7 @@ Relations and ranges represented in the final training data. The surrogate carri
 
 | Quantity | Range or relation |
 | --- | --- |
-| Component ordering | `m1 >= m2`, `lambda1 <= lambda2`, `C1 >= C2` |
+| Component ordering | `m1 >= m2`, `lambda1 <= lambda2` |
 | Mass ratio `q = m2/m1` | 0.611–1.0 |
 | Compactness | 0.121–0.230, both components |
 | Radius | 8.5–15.0 km, both components |
@@ -58,3 +58,9 @@ Fluxes are rest-frame $F_\lambda$ at 10 pc, with units of
 `erg s^-1 cm^-2 Å^-1`.
 
 `predict_spectra` returns an array of shape `(n_cases, n_samples, n_times, 20)`.
+
+The flow models the min-max scaled $y = (x - x_\mathrm{min}) / (x_\mathrm{max} - x_\mathrm{min})$
+of $x = \mathrm{asinh}(F_\lambda / s)$, with $s$ = $10^{-7}$
+`erg s^-1 cm^-2 Å^-1` representing `asinh_scale`. $s$, `x_min` and `x_max` are stored in `N21_flow_config.json`.
+Predictions are returned as $F_\lambda = s\,\sinh(x_\mathrm{min} + y\,(x_\mathrm{max} - x_\mathrm{min}))$,
+with negative values clipped to zero.

@@ -65,7 +65,9 @@ def make_fake_metadata() -> FlowMetadata:
         condition_names=CONDITION_NAMES,
         condition_min=np.array([0.0, 1.0, 1.0, 0.0, 0.0, -1.0], dtype=np.float32),
         condition_max=np.array([20.0, 2.0, 2.0, 1000.0, 1000.0, 1.0], dtype=np.float32),
-        scale_factor=100.0,
+        asinh_scale=0.01,
+        x_min=0.5,
+        x_max=2.5,
     )
 
 

@@ -1,13 +1,19 @@
 """Tests for surrogate discovery and loading"""
 
+import json
 from pathlib import Path
 
 import numpy as np
 import pytest
 import torch
 
-from genova.constants import CASE_CONDITION_NAMES, TIME_CONDITION_NAME
-from genova.prediction import FlowMetadata, load_flow_surrogate, predict_spectra
+from genova.constants import CASE_CONDITION_NAMES, SURROGATE_DIR, TIME_CONDITION_NAME
+from genova.prediction import (
+    FlowMetadata,
+    load_flow_config,
+    load_flow_surrogate,
+    predict_spectra,
+)
 
 CONDITION_NAMES = (TIME_CONDITION_NAME, *CASE_CONDITION_NAMES)
 
@@ -22,8 +28,7 @@ class FakeFlow:
         # Each conditional row must generate exactly one stochastic spectrum.
         assert num_samples == conditional.shape[0]
 
-        # Use scaled time as the synthetic spectrum amplitude. Multiplying by
-        # 100 mimics the spectra scale factor used during training.
+        # Use 100 * scaled time as the synthetic flow output y.
         return conditional[:, :1].repeat(1, 3) * 100.0
 
 
@@ -40,7 +45,9 @@ def make_metadata() -> FlowMetadata:
         condition_names=CONDITION_NAMES,
         condition_min=np.zeros(len(CONDITION_NAMES), dtype=np.float32),
         condition_max=np.ones(len(CONDITION_NAMES), dtype=np.float32),
-        scale_factor=100.0,
+        asinh_scale=0.01,
+        x_min=0.5,
+        x_max=2.5,
     )
 
 
@@ -87,7 +94,7 @@ def test_predict_spectra_output() -> None:
         ]
     )
     # (n_times=3,)
-    time_rest = np.array([0.1, 0.5, 0.9], dtype=np.float32)
+    time_rest = np.array([0.01, 0.05, 0.1], dtype=np.float32)
 
     spectra = predict_spectra(
         FakeFlow(),
@@ -104,8 +111,40 @@ def test_predict_spectra_output() -> None:
     # Output shape: (n_cases, n_samples, n_times, n_wavelengths)
     assert spectra.shape == (2, 2, 3, 3)
 
-    expected = np.broadcast_to(time_rest[None, None, :, None], (2, 2, 3, 3))
-    np.testing.assert_allclose(spectra, expected)
+    # The flow output y = 100 t is the min-max scaled x = asinh(F / asinh_scale),
+    # so F = 0.01 sinh(0.5 + 100 t * (2.5 - 0.5)).
+    y = (time_rest * np.float32(100.0)).astype(np.float64)
+    expected_1d = 0.01 * np.sinh(0.5 + y * 2.0)
+    expected = np.broadcast_to(expected_1d[None, None, :, None], (2, 2, 3, 3))
+    np.testing.assert_allclose(spectra, expected, rtol=1e-12)
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"asinh_scale": None},  # pre-asinh bundle
+        {"x_min": None},  # asinh without min-max scaling
+        {"x_max": None},
+        {"x_min": float("nan")},
+        {"x_max": 0.0},  # x_max <= x_min
+    ],
+)
+def test_config_with_invalid_preprocessing_fails(tmp_path, change) -> None:
+    config_path = next(SURROGATE_DIR.glob("*_config.json"))
+    config = json.loads(config_path.read_text())
+
+    # None removes the key; any other value replaces it.
+    for key, value in change.items():
+        if value is None:
+            del config["prediction_metadata"][key]
+        else:
+            config["prediction_metadata"][key] = value
+
+    bad_path = tmp_path / "bad_flow_config.json"
+    bad_path.write_text(json.dumps(config))
+
+    with pytest.raises(ValueError, match="asinh_scale|x_min|x_max"):
+        load_flow_config(bad_path)
 
 
 # Input contract

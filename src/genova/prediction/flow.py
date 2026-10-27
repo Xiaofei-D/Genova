@@ -62,9 +62,13 @@ class FlowMetadata:
         Physical minimum values used for condition scaling.
     condition_max:
         Physical maximum values used for condition scaling.
-    scale_factor:
-        Factor applied to spectra before training. Physical spectra are
-        recovered by dividing sampled flow outputs by this value.
+    asinh_scale:
+        Flux scale of the spectra representation in erg s^-1 cm^-2 Angstrom^-1,
+        with x = asinh(F / asinh_scale).
+    x_min, x_max:
+        Min-max scaling of x. The flow models y = (x - x_min) / (x_max - x_min),
+        so physical spectra are recovered as
+        F = asinh_scale * sinh(x_min + y * (x_max - x_min)).
     """
 
     path: Path
@@ -78,7 +82,9 @@ class FlowMetadata:
     condition_names: tuple[str, ...]
     condition_min: np.ndarray
     condition_max: np.ndarray
-    scale_factor: float
+    asinh_scale: float
+    x_min: float
+    x_max: float
 
     def scale_conditions(self, conditions_phys: np.ndarray) -> np.ndarray:
         """Min-max scale for physical conditions."""
@@ -97,6 +103,11 @@ class FlowMetadata:
         condition_span = np.where(condition_span == 0.0, 1.0, condition_span)
 
         return (conditions_arr - self.condition_min) / condition_span
+
+    def spectra_from_flow(self, y: torch.Tensor) -> torch.Tensor:
+        """Physical spectra F from flow outputs y (undo min-max, then asinh)."""
+        x = self.x_min + y * (self.x_max - self.x_min)
+        return self.asinh_scale * torch.sinh(x)
 
 
 def load_flow_config(config_path: str | Path) -> FlowMetadata:
@@ -133,7 +144,22 @@ def load_flow_config(config_path: str | Path) -> FlowMetadata:
     wavelengths = np.asarray(
         prediction_metadata["wavelengths"], dtype=np.float64
     ).ravel()
-    scale_factor = float(prediction_metadata["scale_factor"])
+
+    # Spectra representation: min-max scaled x = asinh(F / asinh_scale).
+    for key in ("asinh_scale", "x_min", "x_max"):
+        if key not in prediction_metadata:
+            raise ValueError(
+                f"Config {path} has no '{key}'. Only min-max scaled asinh "
+                "models are supported; older model bundles cannot be loaded."
+            )
+    asinh_scale = float(prediction_metadata["asinh_scale"])
+    x_min = float(prediction_metadata["x_min"])
+    x_max = float(prediction_metadata["x_max"])
+    if not (np.isfinite([asinh_scale, x_min, x_max]).all() and x_max > x_min):
+        raise ValueError(
+            f"Config {path} has invalid preprocessing: asinh_scale {asinh_scale}, "
+            f"x_min {x_min}, x_max {x_max} (finite values and x_max > x_min required)."
+        )
 
     # Cross-check the model config and metadata.
     if int(model_config["n_inputs"]) != wavelengths.size:
@@ -164,7 +190,9 @@ def load_flow_config(config_path: str | Path) -> FlowMetadata:
         condition_names=condition_names,
         condition_min=condition_min,
         condition_max=condition_max,
-        scale_factor=scale_factor,
+        asinh_scale=asinh_scale,
+        x_min=x_min,
+        x_max=x_max,
     )
 
 
@@ -309,8 +337,7 @@ def predict_spectra(
     device:
         CPU or GPU for sampling.
     clip_negative:
-        If True, clip negative flow outputs to zero before converting back to
-        physical flux units.
+        If True, clip negative physical fluxes to zero.
 
     Returns
     -------
@@ -383,11 +410,10 @@ def predict_spectra(
             if isinstance(spectra_scaled, (tuple, list)):
                 spectra_scaled = spectra_scaled[0]
 
-            if clip_negative:
-                spectra_scaled = torch.clamp(spectra_scaled, min=0.0)
+            spectra_phys = metadata.spectra_from_flow(spectra_scaled.double())
 
-            # Recover physical spectra.
-            spectra_phys = spectra_scaled / metadata.scale_factor
+            if clip_negative:
+                spectra_phys = torch.clamp(spectra_phys, min=0.0)
 
         spectra_rows[start:stop] = (
             spectra_phys.detach().cpu().numpy().astype(np.float64)

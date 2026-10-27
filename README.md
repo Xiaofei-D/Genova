@@ -194,5 +194,4 @@ Further details on its training domain and supported parameter space are given i
 
 If you use Genova in your research, please cite:
 
-Dong et al. (2026),  
-[arXiv:2608.20262](https://arxiv.org/abs/2608.20262)
+Dong et al. (2026), [arXiv:2608.20262](https://arxiv.org/abs/2608.20262)
