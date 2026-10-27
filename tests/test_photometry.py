@@ -475,7 +475,13 @@ def general_path_magnitudes(spectra_time, wave, spectra, bands):
 def test_all_zero_time_row_gives_infinite_magnitudes() -> None:
     spectra_time, wave, spectra = make_spectral_timeseries()
     spectra[1] = 0.0
-    bands = ("ps1::g", "2massj")
+    bands = (
+        register_test_bandpass(
+            name="zero_flux_test_band",
+            wave_min=4000.0,
+            wave_max=9000.0,
+        ),
+    )
 
     magnitudes = ab_magnitudes_from_spectral_timeseries(
         spectra_time=spectra_time, wave=wave, spectra=spectra, bands=bands
@@ -492,7 +498,13 @@ def test_near_zero_spectra_keep_finite_magnitudes() -> None:
     spectra[1] = 1.0e-300
     spectra[2] = 0.0
     spectra[2, 400] = 1.0e-20  # one non-zero wavelength
-    bands = ("ps1::g", "2massj")
+    bands = (
+        register_test_bandpass(
+            name="near_zero_flux_test_band",
+            wave_min=4000.0,
+            wave_max=9000.0,
+        ),
+    )
 
     magnitudes = ab_magnitudes_from_spectral_timeseries(
         spectra_time=spectra_time, wave=wave, spectra=spectra, bands=bands
