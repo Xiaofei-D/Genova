@@ -59,8 +59,4 @@ Fluxes are rest-frame $F_\lambda$ at 10 pc, with units of
 
 `predict_spectra` returns an array of shape `(n_cases, n_samples, n_times, 20)`.
 
-The flow models the min-max scaled $y = (x - x_\mathrm{min}) / (x_\mathrm{max} - x_\mathrm{min})$
-of $x = \mathrm{asinh}(F_\lambda / s)$, with $s$ = $10^{-7}$
-`erg s^-1 cm^-2 Å^-1` representing `asinh_scale`. $s$, `x_min` and `x_max` are stored in `N21_flow_config.json`.
-Predictions are returned as $F_\lambda = s\,\sinh(x_\mathrm{min} + y\,(x_\mathrm{max} - x_\mathrm{min}))$,
-with negative values clipped to zero.
+The preprocessing parameters used by the surrogate are stored in `N21_flow_config.json`.
